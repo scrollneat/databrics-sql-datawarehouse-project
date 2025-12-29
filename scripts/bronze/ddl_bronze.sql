@@ -11,8 +11,8 @@
 -- 0️⃣ SAFETY: Set Desired Catalog Name
 -- ----------------------------
 -- 🔄 Change this if you want a different top-level name
-USE CATALOG datawarehouse;
-USE SCHEMA bronze;
+-- USE CATALOG datawarehouse;
+-- USE SCHEMA bronze;
 
 
 -- ----------------------------
@@ -157,26 +157,6 @@ CREATE TABLE datawarehouse.bronze.erp_loc_a101 (
 
 DROP TABLE IF EXISTS datawarehouse.bronze.erp_px_cat_g1v2;
 
-CREATE TABLE datawarehouse.bronze.erp_px_cat_g1v2 (
-  id           STRING,    -- 🆔 Product identifier
-  cat          STRING,    -- 🗂️ Category
-  subcat       STRING,    -- 🗂️ Subcategory
-  maintenance  STRING     -- 🛠️ Maintenance info
-);
--- -------------------------------------------------
--- 📄 File columns: id, cat, subcat, maintenance
--- 🟤 Bronze principle: keep raw fidelity; define reasonable types where safe.
--- 📝 Table contains ERP product category info:
---    - id: Product identifier
---    - cat: Category
---    - subcat: Subcategory
---    - maintenance: Maintenance info
---    - Used for product classification and maintenance tracking
-
--- Drop the table if it exists
-DROP TABLE IF EXISTS datawarehouse.bronze.erp_px_cat_g1v2;
-
--- Create the table
 CREATE TABLE datawarehouse.bronze.erp_px_cat_g1v2 (
   id           STRING,    -- 🆔 Product identifier
   cat          STRING,    -- 🗂️ Category

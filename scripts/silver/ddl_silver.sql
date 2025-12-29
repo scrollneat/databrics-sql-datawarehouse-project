@@ -34,6 +34,7 @@ USE SCHEMA silver;
 --    - prd_line: Product line/category
 --    - prd_start_dt: Start date (available)
 --    - prd_end_dt: End date (unavailable)
+--    - dwh_create_date: Row creation timestamp in DWH
 --    - Used for inventory, pricing analysis, and lifecycle insights
 
 DROP TABLE IF EXISTS datawarehouse.silver.crm_prd_info;
@@ -45,7 +46,8 @@ CREATE TABLE datawarehouse.silver.crm_prd_info (
   prd_cost      INT,                -- 💲 Product cost
   prd_line      STRING,             -- 🗂️ Product line/category
   prd_start_dt  DATE,               -- 📅 Start date (available)
-  prd_end_dt    DATE                -- 📅 End date (unavailable)
+  prd_end_dt    DATE,               -- 📅 End date (unavailable)
+  dwh_create_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP() -- 🕒 Row creation timestamp in DWH
 );
 
 -- 1b) 👤 CUSTOMERS (cust_info.csv)
@@ -60,6 +62,7 @@ CREATE TABLE datawarehouse.silver.crm_prd_info (
 --    - cst_marital_status: Marital status
 --    - cst_gndr: Gender
 --    - cst_create_date: Creation date (YYYY-MM-DD)
+--    - dwh_create_date: Row creation timestamp in DWH
 --    - Used for segmentation, marketing, and demographic analysis
 
 DROP TABLE IF EXISTS datawarehouse.silver.crm_cust_info;
@@ -71,7 +74,8 @@ CREATE TABLE datawarehouse.silver.crm_cust_info (
   cst_lastname       STRING,        -- 🧑 Last name
   cst_marital_status STRING,        -- 💍 Marital status
   cst_gndr           STRING,        -- 🚻 Gender
-  cst_create_date    DATE           -- 📅 Creation date
+  cst_create_date    DATE,          -- 📅 Creation date
+  dwh_create_date    TIMESTAMP DEFAULT CURRENT_TIMESTAMP() -- 🕒 Row creation timestamp in DWH
 );
 
 -- 1c) 💸 SALES (sales_details.csv)
@@ -88,6 +92,7 @@ CREATE TABLE datawarehouse.silver.crm_cust_info (
 --    - sls_sales: Sales amount
 --    - sls_quantity: Quantity sold
 --    - sls_price: Price per unit
+--    - dwh_create_date: Row creation timestamp in DWH
 --    - Used for sales analysis, order tracking, and purchasing patterns
 
 DROP TABLE IF EXISTS datawarehouse.silver.crm_sales_details;
@@ -101,7 +106,8 @@ CREATE TABLE datawarehouse.silver.crm_sales_details (
   sls_due_dt    INT,                -- 📅 Due date (YYYYMMDD as int)
   sls_sales     INT,                -- 💰 Sales amount
   sls_quantity  INT,                -- 🔢 Quantity sold
-  sls_price     INT                 -- 💲 Price per unit
+  sls_price     INT,                -- 💲 Price per unit
+  dwh_create_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP() -- 🕒 Row creation timestamp in DWH
 );
 
 -- =====================================================================
@@ -118,6 +124,7 @@ CREATE TABLE datawarehouse.silver.crm_sales_details (
 --    - cid: Customer identifier
 --    - bdate: Birthdate
 --    - gen: Gender
+--    - dwh_create_date: Row creation timestamp in DWH
 --    - Used for demographic enrichment and analysis
 
 DROP TABLE IF EXISTS datawarehouse.silver.erp_cust_az12;
@@ -125,7 +132,8 @@ DROP TABLE IF EXISTS datawarehouse.silver.erp_cust_az12;
 CREATE TABLE datawarehouse.silver.erp_cust_az12 (
   cid    STRING,    -- 🆔 Customer identifier
   bdate  DATE,      -- 📅 Birthdate
-  gen    STRING     -- 🚻 Gender
+  gen    STRING,    -- 🚻 Gender
+  dwh_create_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP() -- 🕒 Row creation timestamp in DWH
 );
 
 -- 2️⃣ ERP LOCATIONS (erp_loc_a101)
@@ -135,13 +143,15 @@ CREATE TABLE datawarehouse.silver.erp_cust_az12 (
 -- 📝 Table contains ERP customer location info:
 --    - cid: Customer identifier
 --    - cntry: Country
+--    - dwh_create_date: Row creation timestamp in DWH
 --    - Used for geographic segmentation and analysis
 
 DROP TABLE IF EXISTS datawarehouse.silver.erp_loc_a101;
 
 CREATE TABLE datawarehouse.silver.erp_loc_a101 (
   cid    STRING,    -- 🆔 Customer identifier
-  cntry  STRING     -- 🌍 Country
+  cntry  STRING,    -- 🌍 Country
+  dwh_create_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP() -- 🕒 Row creation timestamp in DWH
 );
 
 -- 3️⃣ ERP PRODUCT CATEGORY (erp_px_cat_g1v2)
@@ -153,6 +163,7 @@ CREATE TABLE datawarehouse.silver.erp_loc_a101 (
 --    - cat: Category
 --    - subcat: Subcategory
 --    - maintenance: Maintenance info
+--    - dwh_create_date: Row creation timestamp in DWH
 --    - Used for product classification and maintenance tracking
 
 DROP TABLE IF EXISTS datawarehouse.silver.erp_px_cat_g1v2;
@@ -161,7 +172,8 @@ CREATE TABLE datawarehouse.silver.erp_px_cat_g1v2 (
   id           STRING,    -- 🆔 Product identifier
   cat          STRING,    -- 🗂️ Category
   subcat       STRING,    -- 🗂️ Subcategory
-  maintenance  STRING     -- 🛠️ Maintenance info
+  maintenance  STRING,    -- 🛠️ Maintenance info
+  dwh_create_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP() -- 🕒 Row creation timestamp in DWH
 );
 -- -------------------------------------------------
 -- 📄 File columns: id, cat, subcat, maintenance
@@ -171,6 +183,7 @@ CREATE TABLE datawarehouse.silver.erp_px_cat_g1v2 (
 --    - cat: Category
 --    - subcat: Subcategory
 --    - maintenance: Maintenance info
+--    - dwh_create_date: Row creation timestamp in DWH
 --    - Used for product classification and maintenance tracking
 
 -- Drop the table if it exists
@@ -181,5 +194,6 @@ CREATE TABLE datawarehouse.silver.erp_px_cat_g1v2 (
   id           STRING,    -- 🆔 Product identifier
   cat          STRING,    -- 🗂️ Category
   subcat       STRING,    -- 🗂️ Subcategory
-  maintenance  STRING     -- 🛠️ Maintenance info
+  maintenance  STRING,    -- 🛠️ Maintenance info
+  dwh_create_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP() -- 🕒 Row creation timestamp in DWH
 );
