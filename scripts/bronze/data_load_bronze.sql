@@ -3,7 +3,6 @@
 --          This process ensures foundational data ingestion for downstream analytics.
 --          Data is loaded from CSV files into corresponding bronze tables.
 -- ******************************************************************************************
-
 -- =========================
 -- STEP 1: TRUNCATE TABLES
 -- =========================
