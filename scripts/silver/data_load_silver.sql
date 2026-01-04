@@ -81,3 +81,39 @@ CASE
 END AS
 sls_price  
 from datawarehouse.bronze.crm_sales_details ;
+
+SELECT * FROM datawarehouse.bronze.erp_cust_az12;
+
+desc table datawarehouse.bronze.erp_cust_az12;   
+SELECT 
+CASE
+     WHEN cid LIKE 'NAS%' THEN SUBSTRING(cid, 4, length(cid))
+     ELSE cid
+END AS
+cid,
+bdate,
+CASE 
+     WHEN  UPPER(TRIM(gen)) = 'M' OR UPPER(TRIM(gen)) = 'MALE' THEN 'Male'
+     WHEN  UPPER(TRIM(gen)) = 'F' OR UPPER(TRIM(gen)) = 'FEMALE' THEN 'Female'
+     WHEN  UPPER(TRIM(gen)) = '' OR UPPER(TRIM(gen)) IS NULL THEN 'NA'
+     ELSE 'NA'
+END AS
+gen
+FROM datawarehouse.bronze.erp_cust_az12  ;
+
+SELECT 
+REPLACE(cid, '-', '') AS cid, 
+CASE 
+     WHEN TRIM(cntry) = 'USA' OR TRIM(cntry) = 'US' THEN 'United States'
+     WHEN cntry = 'DE' THEN 'Germany'
+     WHEN cntry IS NULL OR cntry = '' THEN 'NA'
+     ELSE TRIM(cntry)
+END AS 
+cntry 
+FROM datawarehouse.bronze.erp_loc_a101;
+
+SELECT * FROM datawarehouse.bronze.erp_px_cat_g1v2;
+SELECT * FROM datawarehouse.bronze.crm_prd_info;
+
+
+
