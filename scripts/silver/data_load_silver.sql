@@ -1,3 +1,18 @@
+-- ===========================================
+-- 🚀 Datawarehouse Silver Layer Refresh Script
+-- Minimalistic ETL for CRM & ERP tables
+-- ===========================================
+
+TRUNCATE TABLE datawarehouse.silver.crm_prd_info;
+TRUNCATE TABLE datawarehouse.silver.crm_cust_info;
+TRUNCATE TABLE datawarehouse.silver.crm_sales_details;
+TRUNCATE TABLE datawarehouse.silver.erp_cust_az12;
+TRUNCATE TABLE datawarehouse.silver.erp_loc_a101;
+TRUNCATE TABLE datawarehouse.silver.erp_px_cat_g1v2;
+
+-----------------------------------------------------------------------------------------------------------
+-- 👉 Insert latest customer info
+INSERT INTO datawarehouse.silver.crm_cust_info
 SELECT cst_id,
 cst_key,
 TRIM(cst_firstname) AS cst_firstname,
@@ -8,7 +23,8 @@ CASE WHEN TRIM(UPPER(cst_marital_status)) = 'S' THEN 'Single'
 CASE WHEN TRIM(UPPER(cst_gndr)) = 'M' THEN 'Male'
      WHEN TRIM(UPPER(cst_gndr)) = 'F' THEN 'Female'
      ELSE 'NA' END AS cst_gndr,
-cst_create_date
+cst_create_date,
+CURRENT_TIMESTAMP AS dwh_create_date
 FROM (
 SELECT 
 cst_id,
@@ -20,7 +36,9 @@ cst_gndr,
 cst_create_date,
 RANK() OVER (PARTITION BY cst_id ORDER BY cst_create_date DESC) AS LATEST_FLAG
 FROM datawarehouse.bronze.crm_cust_info) WHERE LATEST_FLAG = 1 ;
-
+---------------------------------------------------------------------------------------------------------------------------
+-- 👉 Insert product info with calculated end date
+INSERT INTO datawarehouse.silver.crm_prd_info
 SELECT 
 prd_id,
 cat_id,
@@ -29,7 +47,8 @@ prd_nm,
 prd_cost,
 prd_line,
 prd_start_dt,
-LEAD(prd_start_dt) OVER (PARTITION BY prd_key ORDER BY prd_start_dt) - 1 as prd_end_dt
+LEAD(prd_start_dt) OVER (PARTITION BY prd_key ORDER BY prd_start_dt) - 1 as prd_end_dt,
+CURRENT_TIMESTAMP AS dwh_create_date
 FROM 
 (SELECT 
 prd_id,
@@ -47,7 +66,9 @@ END AS prd_line,
 prd_start_dt,
 prd_end_dt 
 FROM datawarehouse.bronze.crm_prd_info);
-
+---------------------------------------------------------------------------------------------------------------------------
+-- 👉 Insert cleaned sales details
+INSERT INTO datawarehouse.silver.crm_sales_details
 select 
 sls_ord_num,
 sls_prd_key,
@@ -79,12 +100,12 @@ CASE
      THEN abs(sls_sales) / NULLIF(sls_quantity, 0)
      ELSE sls_price
 END AS
-sls_price  
+sls_price,
+CURRENT_TIMESTAMP AS dwh_create_date
 from datawarehouse.bronze.crm_sales_details ;
-
-SELECT * FROM datawarehouse.bronze.erp_cust_az12;
-
-desc table datawarehouse.bronze.erp_cust_az12;   
+---------------------------------------------------------------------------------------------------------------------------
+-- 👉 Insert ERP customer info (normalized)
+INSERT INTO datawarehouse.silver.erp_cust_az12
 SELECT 
 CASE
      WHEN cid LIKE 'NAS%' THEN SUBSTRING(cid, 4, length(cid))
@@ -98,9 +119,12 @@ CASE
      WHEN  UPPER(TRIM(gen)) = '' OR UPPER(TRIM(gen)) IS NULL THEN 'NA'
      ELSE 'NA'
 END AS
-gen
+gen,
+CURRENT_TIMESTAMP AS dwh_create_date
 FROM datawarehouse.bronze.erp_cust_az12  ;
-
+---------------------------------------------------------------------------------------------------------------------------
+-- 👉 Insert ERP location info (standardized)
+INSERT INTO datawarehouse.silver.erp_loc_a101
 SELECT 
 REPLACE(cid, '-', '') AS cid, 
 CASE 
@@ -109,11 +133,18 @@ CASE
      WHEN cntry IS NULL OR cntry = '' THEN 'NA'
      ELSE TRIM(cntry)
 END AS 
-cntry 
+cntry,
+CURRENT_TIMESTAMP AS dwh_create_date
 FROM datawarehouse.bronze.erp_loc_a101;
+---------------------------------------------------------------------------------------------------------------------------
+-- 👉 Insert ERP product category info
+INSERT INTO datawarehouse.silver.erp_px_cat_g1v2
+SELECT 
+id,
+cat,
+subcat,
+maintenance,
+CURRENT_TIMESTAMP AS dwh_create_date
+FROM datawarehouse.bronze.erp_px_cat_g1v2  ;
 
-SELECT * FROM datawarehouse.bronze.erp_px_cat_g1v2;
-SELECT * FROM datawarehouse.bronze.crm_prd_info;
-
-
-
+---------------------------------------------------------------------------------------------------------------------------
