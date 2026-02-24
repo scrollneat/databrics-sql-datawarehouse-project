@@ -3,6 +3,7 @@
 -- Minimalistic ETL for CRM & ERP tables
 -- ===========================================
 
+
 TRUNCATE TABLE datawarehouse.silver.crm_prd_info;
 TRUNCATE TABLE datawarehouse.silver.crm_cust_info;
 TRUNCATE TABLE datawarehouse.silver.crm_sales_details;
