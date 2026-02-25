@@ -20,6 +20,7 @@ Usage:
 
 CREATE OR REPLACE VIEW datawarehouse.gold.dim_customers as
 SELECT 
+  row_number() over (order by cc.cst_key) AS CUSTOMER_KEY,
   cc.cst_id AS CUSTOMER_ID,
   cc.cst_key AS CUSTOMER_NUMBER,
   cc.cst_firstname AS FIRSTNAME,
@@ -40,3 +41,25 @@ LEFT JOIN datawarehouse.silver.erp_loc_a101 el ON el.cid = cc.cst_key;
 -- =============================================================================
 -- Create Dimension: gold.dim_products
 -- =============================================================================
+CREATE OR REPLACE VIEW datawarehouse.gold.dim_products as
+SELECT 
+row_number() over(order by cp.prd_key, cp.prd_start_dt) as PRODUCT_KEY,
+cp.prd_id AS PRODUCT_ID,
+cp.prd_key AS PRODUCT_NUMBER,
+cp.prd_nm AS PRODUCT_NAME,
+cp.cat_id AS CATEGORY_ID,
+ec.cat AS CATEGORY,
+ec.subcat AS SUBCATEGORY,
+ec.maintenance,
+cp.prd_cost AS COST,
+cp.prd_line AS PRODUCT_LINE,
+cp.prd_start_dt AS START_DATE
+FROM
+datawarehouse.silver.crm_prd_info cp
+LEFT JOIN datawarehouse.silver.erp_px_cat_g1v2 ec ON ec.id = cp.cat_id
+WHERE cp.prd_end_dt IS NULL; -- Filter out all historical data
+
+-- =============================================================================
+-- Create Fact Table: gold.fact_sales
+-- =============================================================================
+CREATE OR REPLACE VIEW datawarehouse.gold.fact_sales as
