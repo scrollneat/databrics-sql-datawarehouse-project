@@ -63,3 +63,20 @@ WHERE cp.prd_end_dt IS NULL; -- Filter out all historical data
 -- Create Fact Table: gold.fact_sales
 -- =============================================================================
 CREATE OR REPLACE VIEW datawarehouse.gold.fact_sales as
+SELECT 
+cs.sls_ord_num AS ORDER_NUMBER,
+cs.sls_prd_key AS PRODUCT_KEY,
+cs.sls_cust_id AS CUSTOMER_ID,
+cs.sls_order_dt AS ORDER_DATE,
+cs.sls_ship_dt AS SHIP_DATE, 
+cs.sls_due_dt AS DUE_DATE,
+cs.sls_price AS PRICE,
+cs.sls_quantity AS QUANTITY,
+cs.sls_sales AS SALES_AMOUNT
+FROM
+datawarehouse.silver.crm_sales_details cs
+LEFT JOIN datawarehouse.gold.dim_products pr
+    ON cs.sls_prd_key = pr.product_number
+LEFT JOIN datawarehouse.gold.dim_customers cu
+    ON cs.sls_cust_id = cu.customer_id
+
